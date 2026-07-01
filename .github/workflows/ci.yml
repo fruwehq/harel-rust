@@ -22,7 +22,7 @@ jobs:
       - name: Pin conformance suite at the case-31 commit (6f3fe11)
         run: |
           (cd conformance-suite && git fetch --tags && git checkout 6f3fe11)
-          echo "conformance suite:" && (cd conformance-suite && git describe --tags)
+          echo "conformance suite:" && (cd conformance-suite && git describe --tags --always)
 
       - uses: dtolnay/rust-toolchain@stable
 
