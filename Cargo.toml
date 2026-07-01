@@ -1,10 +1,10 @@
 [package]
 name = "harel"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2021"
 authors = ["fruwehq"]
 license = "MIT"
-description = "Rust implementation of the harel statechart engine (implements harel spec v0.0.2)"
+description = "Rust implementation of the harel statechart engine (implements harel spec v0.0.3)"
 repository = "https://github.com/fruwehq/harel-rust"
 readme = "README.md"
 exclude = ["conformance-suite/", ".github/"]

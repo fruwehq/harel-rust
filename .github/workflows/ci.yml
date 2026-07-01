@@ -17,11 +17,11 @@ jobs:
         with:
           submodules: recursive
 
-      # Guarantee the conformance suite is pinned at spec tag v0.0.2, regardless
+      # Guarantee the conformance suite is pinned at spec tag v0.0.3, regardless
       # of the recorded submodule commit (SPEC §2: the suite is the arbiter).
-      - name: Pin conformance suite at v0.0.2
+      - name: Pin conformance suite at v0.0.3
         run: |
-          (cd conformance-suite && git fetch --tags && git checkout v0.0.2)
+          (cd conformance-suite && git fetch --tags && git checkout v0.0.3)
           echo "conformance suite:" && (cd conformance-suite && git describe --tags)
 
       - uses: dtolnay/rust-toolchain@stable
@@ -45,8 +45,8 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Pin conformance suite at v0.0.2
-        run: (cd conformance-suite && git fetch --tags && git checkout v0.0.2)
+      - name: Pin conformance suite at v0.0.3
+        run: (cd conformance-suite && git fetch --tags && git checkout v0.0.3)
 
       - uses: dtolnay/rust-toolchain@stable
 
