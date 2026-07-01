@@ -3,7 +3,7 @@
 A Rust implementation of the [harel](https://github.com/fruwehq/harel) statechart
 engine.
 
-**Implements harel spec v0.0.2.** Correctness is defined by the language-agnostic
+**Implements harel spec v0.0.3.** Correctness is defined by the language-agnostic
 conformance suite at [`fruwehq/harel-conformance`](https://github.com/fruwehq/harel-conformance)
 (pinned at tag `v0.0.2` as a submodule under `conformance-suite/`); this engine is
 correct iff it passes every case.
@@ -62,7 +62,7 @@ python3 conformance-suite/conformance/run_cli.py --cmd "$(pwd)/target/release/ha
 ```
 
 Both are wired into CI (`.github/workflows/ci.yml`), which fetches the suite at tag
-`v0.0.2` and fails the build on any regression.
+`v0.0.3` and fails the build on any regression.
 
 ## CLI
 
