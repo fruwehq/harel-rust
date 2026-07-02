@@ -264,6 +264,10 @@ pub struct StateNode {
     pub history: Option<String>,
     #[serde(default)]
     pub choice: Option<Vec<ChoiceBranch>>,
+    /// `meta`: opaque state annotations for host layers (SPEC §4.5). Purely
+    /// informative — no effect on dispatch/validation/snapshots.
+    #[serde(default)]
+    pub meta: Option<serde_yaml::Value>,
     /// `submachine: <id>` inlines another definition synchronously (SPEC §5.6.1).
     #[serde(default)]
     pub submachine: Option<String>,
@@ -381,6 +385,10 @@ pub struct RawMachine {
     pub events: Option<BTreeMap<String, EventDecl>>,
     #[serde(default)]
     pub migrations: Option<Vec<Migration>>,
+    /// `meta`: opaque machine-level annotations for host layers (SPEC §4.1).
+    /// Purely informative — no effect on dispatch/validation/snapshots.
+    #[serde(default)]
+    pub meta: Option<serde_yaml::Value>,
     pub top: StateNode,
 }
 
