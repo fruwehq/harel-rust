@@ -125,6 +125,8 @@ pub struct StateDef {
     /// Inlined submachine root (esv-scope boundary, SPEC §5.6.1).
     pub is_sm_boundary: bool,
     pub sm_with: Vec<(String, String)>,
+    /// Opaque state annotations (SPEC §4.5); informative only.
+    pub meta: Value,
 }
 
 impl StateDef {
@@ -158,6 +160,8 @@ pub struct Machine {
     pub by_name: HashMap<String, NodeId>,
     pub by_path: HashMap<String, NodeId>,
     pub top: NodeId,
+    /// Opaque machine-level annotations (SPEC §4.1); informative only.
+    pub meta: Value,
 }
 
 impl Machine {
@@ -300,6 +304,11 @@ fn register(
         region_of: None,
         is_sm_boundary: node.is_sm_boundary,
         sm_with: node.sm_with.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+        meta: node
+            .meta
+            .as_ref()
+            .map(|v| Value::from_yaml(v))
+            .unwrap_or(Value::Map(BTreeMap::new())),
     });
 
     if by_name.contains_key(&id) {
@@ -610,6 +619,11 @@ pub fn build(raw: &RawMachine) -> Result<Machine, Vec<String>> {
         by_name,
         by_path,
         top: 0,
+        meta: raw
+            .meta
+            .as_ref()
+            .map(|v| Value::from_yaml(v))
+            .unwrap_or(Value::Map(BTreeMap::new())),
     })
 }
 
