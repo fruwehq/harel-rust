@@ -1,8 +1,8 @@
 //! harel — a Rust implementation of the harel statechart engine.
 //!
-//! Implements harel spec **v0.0.3**. Correctness is defined by the language-agnostic
+//! Implements harel spec **v0.0.4**. Correctness is defined by the language-agnostic
 //! conformance suite at <https://github.com/fruwehq/harel-conformance> (pinned at
-//! tag `v0.0.3`). See `SPEC.md` in the spec repository for the normative text.
+//! tag `v0.0.4`). See `SPEC.md` in the spec repository for the normative text.
 //!
 //! This crate exposes an embeddable library API (SPEC §2) and a standard `harel`
 //! CLI (`src/bin/harel.rs`, SPEC §13).

@@ -49,7 +49,7 @@ pub fn run(args: Vec<String>) -> i32 {
                 return EXIT_OK;
             }
             "--version" => {
-                println!("harel 0.0.3 (implements harel spec v0.0.3)");
+                println!("harel 0.0.4 (implements harel spec v0.0.4)");
                 return EXIT_OK;
             }
             "--json" => json = true,
@@ -97,7 +97,7 @@ fn err_exit(code: i32, msg: &str) -> i32 {
 
 fn print_help() {
     println!(
-        "harel — statechart engine CLI (spec v0.0.3)\n\
+        "harel — statechart engine CLI (spec v0.0.4)\n\
          usage: harel [--store <spec>] [--json] <command> [args]\n\
          commands: validate, export, new, send, advance, env, state, list, snapshot,\n\
                    restore, mode, inject, step, inspect, run"
