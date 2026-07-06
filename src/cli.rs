@@ -45,6 +45,12 @@ pub fn run(args: Vec<String>) -> i32 {
     while let Some(a) = iter.next() {
         match a.as_str() {
             "--help" | "-h" => {
+                if let Some(cmd) = positional.first() {
+                    if find_command(cmd).is_some() {
+                        print_command_help(cmd);
+                        return EXIT_OK;
+                    }
+                }
                 print_help();
                 return EXIT_OK;
             }
@@ -96,12 +102,83 @@ fn err_exit(code: i32, msg: &str) -> i32 {
 }
 
 fn print_help() {
-    println!(
-        "determa-state — statechart engine CLI (spec v0.0.6)\n\
-         usage: determa-state [--store <spec>] [--json] <command> [args]\n\
-         commands: validate, export, new, send, advance, env, state, list, snapshot,\n\
-                   restore, mode, inject, step, inspect, run"
-    );
+    println!("determa-state — statechart engine CLI (spec v0.0.6)\n");
+    println!("usage: determa-state [--store <spec>] [--json] <command> [args]\n");
+    println!("commands (grouped, alphabetical within each group):");
+    let width = COMMANDS.iter().map(|c| c.name.len()).max().unwrap_or(0);
+    for group in GROUPS {
+        let mut items: Vec<&Cmd> = COMMANDS.iter().filter(|c| c.group == *group).collect();
+        items.sort_by_key(|c| c.name);
+        if items.is_empty() {
+            continue;
+        }
+        println!("  {group}:");
+        for c in items {
+            println!("    {name:<width$}  {desc}", name = c.name, desc = c.desc, width = width);
+        }
+    }
+    println!("\nstore specification (--store / DETERMA_STORE):");
+    println!("  file:<dir>    portable snapshot files (the default, ./.determa)");
+    println!("  mem:          in-memory, ephemeral");
+    println!("  sqlite:<path> a single-file database");
+    println!("\nrun '<command> --help' for a per-command description and example.");
+}
+
+/// One known command's help metadata (group, description, usage, example).
+struct Cmd {
+    name: &'static str,
+    group: &'static str,
+    desc: &'static str,
+    usage: &'static str,
+    example: &'static str,
+}
+
+const GROUPS: &[&str] = &["Authoring", "Instances", "Stepping", "Persistence", "Batch"];
+
+const COMMANDS: &[Cmd] = &[
+    Cmd { name: "validate", group: "Authoring", desc: "validate a machine definition file", usage: "<machine.yaml>", example: "determa-state validate machine.yaml" },
+    Cmd { name: "export", group: "Authoring", desc: "render a machine to a diagram", usage: "[--format mermaid] [--state <id>] <machine.yaml>", example: "determa-state export machine.yaml --format mermaid" },
+    Cmd { name: "advance", group: "Instances", desc: "advance the virtual clock by a duration", usage: "<duration>", example: "determa-state advance 5s" },
+    Cmd { name: "enabled", group: "Instances", desc: "list events an instance can currently handle", usage: "<instance>", example: "determa-state enabled t1" },
+    Cmd { name: "env", group: "Instances", desc: "notify an instance of environment changes", usage: "<instance> --changed k=v,...", example: "determa-state env t1 --changed level=high" },
+    Cmd { name: "inspect", group: "Instances", desc: "show full internal state for debugging", usage: "<instance>", example: "determa-state inspect t1" },
+    Cmd { name: "new", group: "Instances", desc: "create a new instance from a machine", usage: "<id> <machine.yaml> [--external k=v]", example: "determa-state new t1 machine.yaml" },
+    Cmd { name: "send", group: "Instances", desc: "deliver an event to an instance", usage: "<instance> <event> [--payload k=v]", example: "determa-state send t1 coin --payload amount=100" },
+    Cmd { name: "state", group: "Instances", desc: "print an instance's current state", usage: "<instance>", example: "determa-state state t1" },
+    Cmd { name: "inject", group: "Stepping", desc: "enqueue an event without processing (manual mode)", usage: "<instance> <event> [--payload k=v]", example: "determa-state inject t1 coin --payload amount=100" },
+    Cmd { name: "mode", group: "Stepping", desc: "get or set auto vs manual processing mode", usage: "[auto|manual]", example: "determa-state mode manual" },
+    Cmd { name: "step", group: "Stepping", desc: "process N RTC steps (manual mode)", usage: "<instance> [--steps N]", example: "determa-state step t1 --steps 1" },
+    Cmd { name: "list", group: "Persistence", desc: "list all instances", usage: "", example: "determa-state list" },
+    Cmd { name: "restore", group: "Persistence", desc: "recreate an instance from a snapshot", usage: "<snapshot.json>", example: "determa-state restore t1.json" },
+    Cmd { name: "snapshot", group: "Persistence", desc: "serialize an instance to a snapshot", usage: "<instance>", example: "determa-state snapshot t1" },
+    Cmd { name: "run", group: "Batch", desc: "drive many commands from NDJSON stdin (§13.7)", usage: "[-|<ndjson-file>]", example: "echo '[\"new\",\"t1\",\"machine.yaml\"]' | determa-state run -" },
+];
+
+fn find_command(name: &str) -> Option<&'static Cmd> {
+    COMMANDS.iter().find(|c| c.name == name)
+}
+
+fn print_command_help(name: &str) {
+    let Some(command) = find_command(name) else {
+        print_help();
+        return;
+    };
+    println!("determa-state {} — {}\n", command.name, command.desc);
+    if command.usage.is_empty() {
+        println!("usage: determa-state {} [--json]", command.name);
+    } else {
+        println!("usage: determa-state {} [--json] {}", command.name, command.usage);
+    }
+    if command.name == "export" {
+        println!("\noptions:");
+        println!("  --json    machine-readable output");
+        println!("  --format  output format (currently only 'mermaid')");
+        println!("  --state   instance id whose active config to highlight");
+    } else {
+        println!("\noptions:");
+        println!("  --json    machine-readable output");
+    }
+    println!("\nexample:\n  {}", command.example);
 }
 
 // ---------------------------------------------------------------------------
