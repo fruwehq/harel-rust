@@ -58,6 +58,49 @@ pub fn load_machines(src: &str) -> Result<Vec<RawMachine>, Vec<LoadError>> {
     Ok(out)
 }
 
+/// Parse a single machine definition from a pre-parsed JSON value — no YAML text.
+///
+/// A host can build a machine in code (e.g. with the `serde_json::json!` macro)
+/// and load it through the same deserialization path as `load_machines`, without
+/// serializing to a YAML string first. The first document of a multi-document
+/// machine is the root (SPEC §9).
+pub fn load_machine_from_value(value: serde_json::Value) -> Result<RawMachine, LoadError> {
+    serde_json::from_value(value).map_err(|e| LoadError {
+        path: "machine".to_string(),
+        message: format!("{e}"),
+    })
+}
+
+/// Parse machine definitions from pre-parsed JSON values (one per document).
+///
+/// The host supplies each document already split; the first is the root (SPEC §9).
+/// This is the value-based counterpart of `load_machines`.
+pub fn load_machines_from_values(
+    values: Vec<serde_json::Value>,
+) -> Result<Vec<RawMachine>, Vec<LoadError>> {
+    let mut out = Vec::new();
+    let mut errs = Vec::new();
+    for (i, value) in values.into_iter().enumerate() {
+        match serde_json::from_value::<RawMachine>(value) {
+            Ok(m) => out.push(m),
+            Err(e) => errs.push(LoadError {
+                path: format!("doc[{i}]"),
+                message: format!("{e}"),
+            }),
+        }
+    }
+    if !errs.is_empty() {
+        return Err(errs);
+    }
+    if out.is_empty() {
+        return Err(vec![LoadError {
+            path: "machine".to_string(),
+            message: "no machine definitions found".to_string(),
+        }]);
+    }
+    Ok(out)
+}
+
 /// Parse a single contract file.
 pub fn load_contract(src: &str) -> Result<Contract, LoadError> {
     let de = serde_yaml::Deserializer::from_str(src);

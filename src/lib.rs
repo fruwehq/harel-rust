@@ -15,6 +15,18 @@
 //! assert!(valid);
 //! let _machine = build_machine(&docs[0]).expect("builds");
 //! ```
+//!
+//! Machines can also be built in code from a native value (no YAML text), e.g.
+//! with the `serde_json::json!` macro:
+//! ```
+//! use determa_state::{build_machine, load_machine_from_value};
+//! use serde_json::json;
+//! let raw = load_machine_from_value(json!({
+//!     "id": "ping",
+//!     "top": {"initial": {"transition_to": "up"}, "states": {"up": {}}}
+//! })).expect("parses");
+//! let _machine = build_machine(&raw).expect("builds");
+//! ```
 
 pub mod cel;
 pub mod cli;
@@ -27,7 +39,7 @@ pub mod store;
 pub mod validate;
 pub mod value;
 
-pub use loader::{load_contract, load_machines, LoadError};
+pub use loader::{load_contract, load_machine_from_value, load_machines, load_machines_from_values, LoadError};
 pub use validate::{validate, Contract};
 
 pub use machine::{build as build_machine, resolve_definitions, Machine, NodeId, Scope};
